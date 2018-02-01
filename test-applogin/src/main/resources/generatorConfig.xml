@@ -68,6 +68,16 @@
             <table tableName="place" domainObjectName="Place"
             ></table>
             
+            <table tableName="sign" domainObjectName="Sign"
+            ></table>
+            
+            <table tableName="user" domainObjectName="AppUser"
+            ></table>
+            
+            <table tableName="sign_view" domainObjectName="SignView"
+            ></table>
+            
+            
             
            
             

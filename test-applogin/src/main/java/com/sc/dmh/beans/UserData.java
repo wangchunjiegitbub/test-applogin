@@ -4,7 +4,14 @@ public class UserData {
 	String 	userName;
 	String	userPassword;
 	String	uuid;
+	String	token;
 	
+	public String getToken() {
+		return token;
+	}
+	public void setToken(String token) {
+		this.token = token;
+	}
 	public String getUuid() {
 		return uuid;
 	}

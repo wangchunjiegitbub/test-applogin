@@ -48,34 +48,30 @@ public class UserController {
 	}
 	
 		
-	
-	//自定义权限验证注解加注解时表示有权限是才能访问
-//	@AuthPassport
-	//请求的路径
-	@RequestMapping("/index")
-	public String showIndex( 
-			HttpServletRequest request, 
-			HttpServletResponse resp) 
-			throws IOException {
-			//返回的视图
-		
-			return "index";
+	//登陆控制器
+		@RequestMapping("/getCurrentPosition")
+		public void getCurrentPosition(String data, CbhsUser formUserdmh, 
+				HttpServletRequest request, 
+				HttpServletResponse resp) 
+				throws IOException {//@PathVariable String id(路径变量如@RequestMapping("/{id}/showUser"))
+			if(null == data){
+				logger.info("isempty");
+				return;
+			}
+			logger.info(data);
+			ObjectMapper mapper = new ObjectMapper();  
+			UserData userData = mapper.readValue(data, UserData.class);
+			logger.info(JSON.toJSONString(userData));
+
+			
+			// {"total":10 , "rows":[{},{}]}
+			String json = "{\"result\":\"checkOK\",\"token\":\"123\"}";
+			if(null != userData.getToken() && userData.getToken().length() >0 ){
+				 json = "{\"result\":\"tokenOK\",\"token\":\"123\"}";
+			}
+			resp.getWriter().write(json);
 		}
 	
-	
-	//自定义权限验证注解加注解时表示有权限是才能访问
-//	@AuthPassport
-	//请求的路径-退出方法
-	@RequestMapping("/quit")
-	public String quit( 
-			HttpServletRequest request, 
-			HttpServletResponse resp) 
-			throws IOException {
-			//Session失效，里面的所有东西都会清空了，同时也释放了资源。
-			request.getSession().invalidate();
-			//返回的视图
-			return "login";
-			}
 	
 	
 	
@@ -85,15 +81,21 @@ public class UserController {
 			HttpServletRequest request, 
 			HttpServletResponse resp) 
 			throws IOException {//@PathVariable String id(路径变量如@RequestMapping("/{id}/showUser"))
-		
+		if(null == data){
+			logger.info("isempty");
+			return;
+		}
 		logger.info(data);
 		ObjectMapper mapper = new ObjectMapper();  
 		UserData userData = mapper.readValue(data, UserData.class);
 		logger.info(JSON.toJSONString(userData));
 
+		
 		// {"total":10 , "rows":[{},{}]}
 		String json = "{\"result\":\"checkOK\",\"token\":\"123\"}";
-		
+		if(null != userData.getToken() && userData.getToken().length() >0 ){
+			 json = "{\"result\":\"tokenOK\",\"token\":\"123\"}";
+		}
 		resp.getWriter().write(json);
 	}
 

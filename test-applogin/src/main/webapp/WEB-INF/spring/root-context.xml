@@ -36,7 +36,7 @@ http://www.springframework.org/schema/context/spring-context-3.0.xsd
 	        <map key-type="java.lang.String">
 	            <!--通过不同的key决定用哪个dataSource-->
 	            <entry value-ref="dataSource" key="dataSource"></entry>
-	            <entry value-ref="sycwdDataSource" key="sycwdDataSource"></entry>
+	            <!-- <entry value-ref="sycwdDataSource" key="sycwdDataSource"></entry> -->
 	            <!-- <entry value-ref="mssqlDataSource" key="mssqlDataSource"></entry> -->
 	        </map>
 	    </property>
@@ -46,46 +46,46 @@ http://www.springframework.org/schema/context/spring-context-3.0.xsd
 	</bean>
 
 	<!-- 配置数据源沈阳车务段 -->
-	<bean name="sycwdDataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+<!-- 	<bean name="sycwdDataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
 		<property name="url" value="${jdbc_sycwd_url}" />
 		<property name="username" value="${jdbc_sycwd_username}" />
 		<property name="password" value="${jdbc_sycwd_password}" />
-		<!-- 增加 -->
+		增加
 		<property name="driverClassName" value="${driverClassName}" />  
-		<!-- 初始化连接大小 -->
+		初始化连接大小
 		<property name="initialSize" value="0" />
-		<!-- 连接池最大使用连接数量 -->
+		连接池最大使用连接数量
 		<property name="maxActive" value="20" />
 		
 		
-		<!-- 连接池最小空闲 -->
+		连接池最小空闲
 		<property name="minIdle" value="0" />
-		<!-- 获取连接最大等待时间 -->
+		获取连接最大等待时间
 		<property name="maxWait" value="60000" />
 
-		<!-- <property name="poolPreparedStatements" value="true" /> <property name="maxPoolPreparedStatementPerConnectionSize" value="33" /> -->
+		<property name="poolPreparedStatements" value="true" /> <property name="maxPoolPreparedStatementPerConnectionSize" value="33" />
 
 		<property name="validationQuery" value="${validationQuery}" />
 		<property name="testOnBorrow" value="false" />
 		<property name="testOnReturn" value="false" />
 		<property name="testWhileIdle" value="true" />
 
-		<!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+		配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
 		<property name="timeBetweenEvictionRunsMillis" value="60000" />
-		<!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+		配置一个连接在池中最小生存的时间，单位是毫秒
 		<property name="minEvictableIdleTimeMillis" value="25200000" />
 
-		<!-- 打开removeAbandoned功能 -->
+		打开removeAbandoned功能
 		<property name="removeAbandoned" value="true" />
-		<!-- 1800秒，也就是30分钟 -->
+		1800秒，也就是30分钟
 		<property name="removeAbandonedTimeout" value="1800" />
-		<!-- 关闭abanded连接时输出错误日志 -->
+		关闭abanded连接时输出错误日志
 		<property name="logAbandoned" value="true" />
 
-		<!-- 监控数据库 -->
-		<!-- <property name="filters" value="stat" /> -->
+		监控数据库
+		<property name="filters" value="stat" />
 		<property name="filters" value="mergeStat" />
-	</bean>
+	</bean> -->
 	
 	
 	<!-- 配置数据源 路局现车-->

@@ -143,13 +143,13 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.1.21</version>
 		</dependency>
-		
+		 <!-- 需要手动安装驱动文件 -->
 		<!-- oracle -->
-		<dependency>
+		<!-- <dependency>
 			<groupId>com.oracle</groupId>
 			<artifactId>ojdbc6</artifactId>
 			<version>11.2.0.1.0</version>
-		</dependency>
+		</dependency> -->
 
 		<!-- druid连接池 -->
 		<dependency>
@@ -225,12 +225,12 @@
             <version>1.7.0</version>
         </dependency>
         
-        
-        <dependency>
+        <!-- 需要手动安装驱动文件 -->
+       <!--  <dependency>
 	        <groupId>com.microsoft.sqlserver</groupId>
 	    	<artifactId>sqljdbc4</artifactId>
 	    	<version>4.0</version>
-        </dependency>
+        </dependency> -->
         <!-- mssql -->
 		<!-- <dependency>
             <groupId>com.microsoft.sqlserver</groupId>

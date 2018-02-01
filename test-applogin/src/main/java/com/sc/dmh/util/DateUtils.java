@@ -624,43 +624,43 @@ public class DateUtils {
 	}
 	
 	/**
-	 * 根据date格式和传入想要位置，返回int
+	 * 根据date格式和传入想要位置，返回int需要jdk1.7
 	 * @param date
 	 * @param str
 	 * @return
 	 */
-	public static int getDate2Int(Date date,String str){
-		int idate = 0;
-		str = str.toLowerCase();
-		Calendar cal=Calendar.getInstance();  
-		cal.setTime(date); 
-		switch (str) {
-		case "year":
-			idate = cal.get(Calendar.YEAR);
-			break;
-		case "month":
-			idate = cal.get(Calendar.MONTH)+1;
-			break;
-		case "day":
-			idate = cal.get(Calendar.DAY_OF_MONTH);
-			break;
-		case "hour":
-			idate = cal.get(Calendar.HOUR_OF_DAY);
-			break;
-		case "minutes":
-			idate = cal.get(Calendar.MINUTE);
-			break;
-		case "second":
-			idate = cal.get(Calendar.SECOND);
-			break;
-		case "week":
-			idate = cal.get(Calendar.DAY_OF_WEEK);
-			break;
-		default:
-			break;
-		}
-		return idate;
-	}
+//	public static int getDate2Int(Date date,String str){
+//		int idate = 0;
+//		str = str.toLowerCase();
+//		Calendar cal=Calendar.getInstance();  
+//		cal.setTime(date); 
+//		switch (str) {
+//		case "year":
+//			idate = cal.get(Calendar.YEAR);
+//			break;
+//		case "month":
+//			idate = cal.get(Calendar.MONTH)+1;
+//			break;
+//		case "day":
+//			idate = cal.get(Calendar.DAY_OF_MONTH);
+//			break;
+//		case "hour":
+//			idate = cal.get(Calendar.HOUR_OF_DAY);
+//			break;
+//		case "minutes":
+//			idate = cal.get(Calendar.MINUTE);
+//			break;
+//		case "second":
+//			idate = cal.get(Calendar.SECOND);
+//			break;
+//		case "week":
+//			idate = cal.get(Calendar.DAY_OF_WEEK);
+//			break;
+//		default:
+//			break;
+//		}
+//		return idate;
+//	}
 	
 	
 	

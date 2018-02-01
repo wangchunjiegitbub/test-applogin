@@ -21,15 +21,17 @@ import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.alibaba.fastjson.JSON;
 import com.sc.dmh.annotation.AuthPassport;
+import com.sc.dmh.beans.AppUser;
 import com.sc.dmh.beans.CbhsUser;
 import com.sc.dmh.beans.CbhsUserExample;
 import com.sc.dmh.beans.UserData;
 import com.sc.dmh.beans.CbhsUserExample.Criteria;
-
+import com.sc.dmh.service.inter.AppUserServiceI;
 import com.sc.dmh.service.inter.UserServiceI;
 
 
@@ -39,18 +41,18 @@ import com.sc.dmh.service.inter.UserServiceI;
 public class UserController {
 	private static final Logger logger = Logger.getLogger(UserController.class);
 	@Autowired
-	private UserServiceI userService;
-	
-	
-
-	public void setUserService(UserServiceI userService) {
-		this.userService = userService;
+	private AppUserServiceI appUserService;
+			
+	public void setAppUserService(AppUserServiceI appUserService) {
+		this.appUserService = appUserService;
 	}
-	
-		
-	//登陆控制器
+
+
+
+
+		//登陆控制器
 		@RequestMapping("/getCurrentPosition")
-		public void getCurrentPosition(String data, CbhsUser formUserdmh, 
+		public void getCurrentPosition(String data,
 				HttpServletRequest request, 
 				HttpServletResponse resp) 
 				throws IOException {//@PathVariable String id(路径变量如@RequestMapping("/{id}/showUser"))
@@ -60,7 +62,7 @@ public class UserController {
 			}
 			logger.info(data);
 			ObjectMapper mapper = new ObjectMapper();  
-			UserData userData = mapper.readValue(data, UserData.class);
+			AppUser userData = mapper.readValue(data, AppUser.class);
 			logger.info(JSON.toJSONString(userData));
 
 			
@@ -77,7 +79,7 @@ public class UserController {
 	
 	//登陆控制器
 	@RequestMapping("/appLogin")
-	public void showUser(String data, CbhsUser formUserdmh, 
+	public void showUser(String data,  
 			HttpServletRequest request, 
 			HttpServletResponse resp) 
 			throws IOException {//@PathVariable String id(路径变量如@RequestMapping("/{id}/showUser"))
@@ -87,7 +89,7 @@ public class UserController {
 		}
 		logger.info(data);
 		ObjectMapper mapper = new ObjectMapper();  
-		UserData userData = mapper.readValue(data, UserData.class);
+		AppUser userData = mapper.readValue(data, AppUser.class);
 		logger.info(JSON.toJSONString(userData));
 
 		

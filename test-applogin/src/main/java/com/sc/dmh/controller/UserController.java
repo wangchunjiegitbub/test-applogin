@@ -27,12 +27,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.alibaba.fastjson.JSON;
 import com.sc.dmh.annotation.AuthPassport;
 import com.sc.dmh.beans.AppUser;
+import com.sc.dmh.beans.AppUserExample;
 import com.sc.dmh.beans.CbhsUser;
 import com.sc.dmh.beans.CbhsUserExample;
 import com.sc.dmh.beans.UserData;
 import com.sc.dmh.beans.CbhsUserExample.Criteria;
+import com.sc.dmh.beans.Place;
 import com.sc.dmh.service.inter.AppUserServiceI;
 import com.sc.dmh.service.inter.UserServiceI;
+import com.sc.dmh.util.Md5Util;
 
 
 
@@ -56,21 +59,22 @@ public class UserController {
 				HttpServletRequest request, 
 				HttpServletResponse resp) 
 				throws IOException {//@PathVariable String id(路径变量如@RequestMapping("/{id}/showUser"))
+			
+			resp.setContentType("text/html;charset=utf-8");	
+			
 			if(null == data){
 				logger.info("isempty");
 				return;
 			}
-			logger.info(data);
+			logger.debug(data);
 			ObjectMapper mapper = new ObjectMapper();  
-			AppUser userData = mapper.readValue(data, AppUser.class);
-			logger.info(JSON.toJSONString(userData));
+			Place userData = mapper.readValue(data, Place.class);
+			logger.debug(JSON.toJSONString(userData));
 
 			
 			// {"total":10 , "rows":[{},{}]}
-			String json = "{\"result\":\"checkOK\",\"token\":\"123\"}";
-			if(null != userData.getToken() && userData.getToken().length() >0 ){
-				 json = "{\"result\":\"tokenOK\",\"token\":\"123\"}";
-			}
+			String json = "{\"result\":\"1\",\"token\":\"123\"}";
+			
 			resp.getWriter().write(json);
 		}
 	
@@ -83,22 +87,78 @@ public class UserController {
 			HttpServletRequest request, 
 			HttpServletResponse resp) 
 			throws IOException {//@PathVariable String id(路径变量如@RequestMapping("/{id}/showUser"))
+		
+		resp.setContentType("text/html;charset=utf-8");	
+		logger.debug(data);
+		String json = "";
+		
+		
 		if(null == data){
 			logger.info("isempty");
 			return;
 		}
-		logger.info(data);
+		
 		ObjectMapper mapper = new ObjectMapper();  
 		AppUser userData = mapper.readValue(data, AppUser.class);
-		logger.info(JSON.toJSONString(userData));
-
+		logger.debug(JSON.toJSONString(userData));
 		
-		// {"total":10 , "rows":[{},{}]}
-		String json = "{\"result\":\"checkOK\",\"token\":\"123\"}";
-		if(null != userData.getToken() && userData.getToken().length() >0 ){
-			 json = "{\"result\":\"tokenOK\",\"token\":\"123\"}";
+//		1.验证用户token是否存在，
+//		2.如果存在验证uuid与token
+//		3.保存用户到session返回验证通过
+		//自动登录设置
+		if(null != userData  && null != userData.getToken()){
+			
+			
+			AppUserExample example = new AppUserExample();
+			com.sc.dmh.beans.AppUserExample.Criteria c = example.createCriteria();
+			c.andTokenEqualTo(userData.getToken());
+			c.andUuidEqualTo(userData.getUuid());
+			List<AppUser> userList = appUserService.selectByExample(example );
+			if(userList.size()==1){
+				//保存用户到session中
+				request.getSession().setAttribute("sessionUser", userList.get(0));
+				json = "{\"result\":\"tokenOK\"}";
+				resp.getWriter().write(json);
+				return;
+				
+			}
+			
+			
 		}
+		
+		//用户名密码登录
+		if(null != userData  && null != userData.getWageNumber() && null != userData.getPassword() && null != userData.getUuid() ){
+			
+			AppUserExample example = new AppUserExample();
+			com.sc.dmh.beans.AppUserExample.Criteria c = example.createCriteria();
+			c.andWageNumberEqualTo(userData.getWageNumber());
+			c.andPasswordEqualTo(userData.getPassword());
+			List<AppUser> userList = appUserService.selectByExample(example );
+			//根据用户劳资号加密码验证通过
+			if(userList.size()==1){
+				
+				String token = Md5Util.getMD5(userList.get(0).getWageNumber()  + new Date());
+				userList.get(0).setToken(token );
+				userList.get(0).setUuid(userData.getUuid());
+				int i = appUserService.updateByExample(userList.get(0), example);
+				logger.debug("updateByExample:" + i);
+				//保存用户到session中
+				request.getSession().setAttribute("sessionUser", userList.get(0));
+				json = "{\"result\":\"checkOK\",\"token\":\""  + userList.get(0).getToken() + "\"}";
+						
+				resp.getWriter().write(json);
+				return;
+				
+			}
+			
+			
+		}
+		
+		json = "{\"result\":\"-1\"}";
+		
 		resp.getWriter().write(json);
+		
+		
 	}
 
 

@@ -20,18 +20,18 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
                 if(authPassport == null || authPassport.validate() == false)
                 return true;
             else{  
-            	return true;
+            	
                 //在这里实现自己的权限验证逻辑
-//                if(request.getSession().getAttribute("sessionUser") != null)//如果验证成功返回true（这里直接写false来模拟验证失败的处理）
-//                    return true;
-//                else//如果验证失败
-//                {
-//                    //返回到登录界面
-//                	
-//                	request.setAttribute("msg", "您还没有登录!");
-//                	request.getRequestDispatcher("login").forward(request, response);
-//                    return false;
-//                }       
+                if(request.getSession().getAttribute("sessionUser") != null)//如果验证成功返回true（这里直接写false来模拟验证失败的处理）
+                    return true;
+                else//如果验证失败
+                {
+                    //返回到登录界面
+                	
+                	request.setAttribute("msg", "您还没有登录!");
+                	request.getRequestDispatcher("login").forward(request, response);
+                    return false;
+                }       
             }
         }
         else

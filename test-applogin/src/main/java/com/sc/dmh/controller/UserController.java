@@ -53,31 +53,6 @@ public class UserController {
 
 
 
-		//登陆控制器
-		@RequestMapping("/getCurrentPosition")
-		public void getCurrentPosition(String data,
-				HttpServletRequest request, 
-				HttpServletResponse resp) 
-				throws IOException {//@PathVariable String id(路径变量如@RequestMapping("/{id}/showUser"))
-			
-			resp.setContentType("text/html;charset=utf-8");	
-			
-			if(null == data){
-				logger.info("isempty");
-				return;
-			}
-			logger.debug(data);
-			ObjectMapper mapper = new ObjectMapper();  
-			Place userData = mapper.readValue(data, Place.class);
-			logger.debug(JSON.toJSONString(userData));
-
-			
-			// {"total":10 , "rows":[{},{}]}
-			String json = "{\"result\":\"1\",\"token\":\"123\"}";
-			
-			resp.getWriter().write(json);
-		}
-	
 	
 	
 	

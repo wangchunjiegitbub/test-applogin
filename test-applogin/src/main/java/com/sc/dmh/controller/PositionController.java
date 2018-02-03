@@ -22,10 +22,13 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.alibaba.fastjson.JSON;
-
+import com.sc.dmh.annotation.AuthPassport;
+import com.sc.dmh.beans.AppUser;
 import com.sc.dmh.beans.Place;
 import com.sc.dmh.beans.PlaceExample;
 import com.sc.dmh.beans.PlaceExample.Criteria;
+import com.sc.dmh.beans.Sign;
+import com.sc.dmh.beans.SignExample;
 import com.sc.dmh.service.inter.PlaceServiceI;
 import com.sc.dmh.service.inter.SignServiceI;
 import com.sc.dmh.service.inter.SignViewServiceI;
@@ -59,7 +62,8 @@ public class PositionController {
 	}
 
 
-
+		//自定义权限验证注解加注解时表示有权限是才能访问
+		@AuthPassport
 		//登陆控制器
 		@RequestMapping("/getCurrentPosition")
 		public void getCurrentPosition(String data,
@@ -68,12 +72,18 @@ public class PositionController {
 				throws IOException {//@PathVariable String id(路径变量如@RequestMapping("/{id}/showUser"))
 			
 			resp.setContentType("text/html;charset=utf-8");	
+			//得到用户
+			AppUser userSession = (AppUser) request.getSession().getAttribute("sessionUser");
+			
+			String json = "";
+			
+			
 			
 			if(null == data){
 				logger.info("isempty");
 				return;
 			}
-			logger.debug(data);
+			
 			
 			ObjectMapper mapper = new ObjectMapper();  
 			Place place = mapper.readValue(data, Place.class);
@@ -86,21 +96,133 @@ public class PositionController {
 			c.andLongitudeWestLessThanOrEqualTo(place.getLongitude());
 			c.andLongitudeEastGreaterThanOrEqualTo(place.getLongitude());
 			
-			List<Place> placeAll = placeService.selectByExample(example);
+			List<Place> placeList = placeService.selectByExample(example);
 			
-			if( !placeAll.isEmpty() && placeAll.size()>0 ){
+			//无地点数据不能签到
+			if( null == placeList || placeList.isEmpty()){
 				
+				json = "{\"result\":\"-1\",\"message\":\"您的位置未在车站不能签到！\"}";
 				
-			}else{
+				resp.getWriter().write(json);
+				return;
+			}
+			//地点有正确数据
+			if( !placeList.isEmpty() && placeList.size()>0 ){
+				SignExample exampleSign = new SignExample();
+				com.sc.dmh.beans.SignExample.Criteria cSign = exampleSign.createCriteria();
+				//设置查询条件为当前用户ID及当前地点ID
+				cSign.andUserIdEqualTo(userSession.getId());
+				cSign.andPlaceIdEqualTo(placeList.get(0).getId());
 				
+				//设置排序规则降序排列查询当前用户在当前地点签到记录
+				exampleSign.setOrderByClause("sign_intime desc");
+				List<Sign> signList = signService.selectByExample(exampleSign);
+				
+				//地点签到表查询无数据添加数据或者有数据并且状态为正常签离
+				if(null == signList || signList.isEmpty() || (!signList.isEmpty() && signList.size()>0 && signList.get(0).getSignState()==1)){
+				
+					//签到及处理未签离问题
+					json = signIn(userSession, place, placeList, 0);
+					
+					
+					
+				//签到表查询到有效数据并且状态为0	-未签离
+				}else if( !signList.isEmpty() && signList.size()>0 && signList.get(0).getSignState()==0){
+					
+					//签离
+					json = signOut(userSession, place, placeList, 1);
+					
+					
+				}
+			
 			}
 			// {"total":10 , "rows":[{},{}]}
-			String json = "{\"result\":\"1\",\"token\":\"123\"}";
+			
 			
 			resp.getWriter().write(json);
 		}
+
+		/**
+		 * @param userSession
+		 * @param placeList
+		 * @param exampleSign
+		 */
+		private String signNoOut(AppUser userSession, List<Place> placeList) {
+			SignExample exampleSign = new SignExample();
+			com.sc.dmh.beans.SignExample.Criteria cSign2 = exampleSign.createCriteria();
+			cSign2.andUserIdEqualTo(userSession.getId());
+			cSign2.andPlaceIdNotEqualTo(placeList.get(0).getId());
+			cSign2.andSignStateEqualTo(0);
+			List<Sign> signNoOutList = signService.selectByExample(exampleSign);
+			//没有未签离记录退出
+			if(null == signNoOutList || signNoOutList.isEmpty()){
+				return "";
+			}else{
+				signNoOutList.get(0).setSignState(2);
+				signService.updateByExample(signNoOutList.get(0), exampleSign);
+				return signNoOutList.get(0).getPlaceId().toString();
+			}
+		}
+
+		
+
+		/**
+		 * @param userSession
+		 * @param place
+		 * @param placeList
+		 * @return
+		 */
+		private String signIn(AppUser userSession, Place place, List<Place> placeList, Integer state) {
+			String json;
+			Sign record = new Sign();
+			record.setPlaceId(placeList.get(0).getId());
+			record.setSignInlatitude(place.getLatitude());
+			record.setSignInlongitude(place.getLongitude());
+			record.setUserId(userSession.getId());
+			record.setSignIntime(new Date());
+			record.setSignState(state);
+			int i = signService.insert(record);
+			
+			//处理其他地点未签离问题
+			String s = signNoOut(userSession, placeList);
+			if("".equals(s)){
+				json = "{\"result\":\"1\",\"message\":\"" + placeList.get(0).getPlaceName() + "签到成功！\"}";
+			}else{
+				json = "{\"result\":\"1\",\"message\":\"" + placeList.get(0).getPlaceName() + "签到成功！上一站已经按照未签离处理！\"}";
+			}
+			
+			
+			return json;
+		}
 	
-	
+		/**
+		 * @param userSession
+		 * @param place
+		 * @param placeList
+		 * @return
+		 */
+		private String signOut(AppUser userSession, Place place, List<Place> placeList, Integer state) {
+			
+			SignExample exampleSign = new SignExample();
+			com.sc.dmh.beans.SignExample.Criteria cSign = exampleSign.createCriteria();
+			//设置查询条件为当前用户ID及当前地点ID
+			cSign.andUserIdEqualTo(userSession.getId());
+			cSign.andPlaceIdEqualTo(placeList.get(0).getId());
+			cSign.andSignStateEqualTo(0);
+			
+			String json = "";
+			Sign record = new Sign();
+			
+			record.setSignOutlatitude(place.getLatitude());
+			record.setSignOutlongitude(place.getLongitude());
+			
+			record.setSignOuttime(new Date());
+			record.setSignState(state);
+			
+			int i = signService.updateByExampleSelective(record, exampleSign);
+			json = "{\"result\":\"1\",\"message\":\"" + placeList.get(0).getPlaceName() + "签离成功！\"}";
+			return json;
+		}
 	
 	
 	

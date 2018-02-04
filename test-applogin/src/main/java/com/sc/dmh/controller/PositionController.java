@@ -32,6 +32,8 @@ import com.sc.dmh.beans.SignExample;
 import com.sc.dmh.service.inter.PlaceServiceI;
 import com.sc.dmh.service.inter.SignServiceI;
 import com.sc.dmh.service.inter.SignViewServiceI;
+import com.sc.dmh.util.GCJ02_BD09;
+import com.sc.dmh.util.GCJ02_BD09.Gps;
 
 
 
@@ -87,6 +89,13 @@ public class PositionController {
 			
 			ObjectMapper mapper = new ObjectMapper();  
 			Place place = mapper.readValue(data, Place.class);
+			
+			//坐标系统转换
+			Gps bdGps = GCJ02_BD09.gcj02_To_Bd09(place.getLongitude().doubleValue(), place.getLatitude().doubleValue());
+			
+			place.setLatitude(new BigDecimal(bdGps.lat + ""));
+			place.setLongitude(new BigDecimal(bdGps.lon + ""));
+			
 			
 			//设置查询条件为两点间的数据
 			PlaceExample example = new PlaceExample();
@@ -159,7 +168,9 @@ public class PositionController {
 				return "";
 			}else{
 				signNoOutList.get(0).setSignState(2);
-				signService.updateByExample(signNoOutList.get(0), exampleSign);
+				logger.debug(JSON.toJSONString(signNoOutList.get(0)));
+				logger.debug(JSON.toJSONString(exampleSign));
+				signService.updateByPrimaryKey(signNoOutList.get(0));
 				return signNoOutList.get(0).getPlaceId().toString();
 			}
 		}
